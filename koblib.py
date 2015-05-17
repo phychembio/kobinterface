@@ -21,6 +21,9 @@ def initialize(q):
         q.iwNtotal=0
         q.bwNtotal=0
         q.ecounter=0
+    if q.studysurf:
+        q.calcSurf=False
+        q.surff=gzip.open("surf.pickle","rb")
     if q.calcSurf:
         q.surff=gzip.open("surf.pickle","wb", compresslevel=5)
 
@@ -264,6 +267,14 @@ def countatoms(map, atomIDlist):
     for atomID in atomIDlist:
         sum+=len(map[atomID])
     return sum
+
+def endprogram(suffix,q):
+    printresults(suffix,q)    
+    if q.calcenergies:
+        q.dataoutL.close()
+    if q.calcSurf:
+        q.surff.close()
+    #q.debugf.close()
 
 
 def printresults(suffix,q):

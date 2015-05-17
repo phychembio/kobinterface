@@ -29,7 +29,8 @@ prefix="H-interface/short4"
 q.skipstep=0
 q.trajfile=prefix+''+args[0]
 
-q.calcSurf=True
+q.calcSurf=False
+q.studysurf=True
 q.calcenergies=False
 q.surflevel=0.015
 q.surftol=0.0001
@@ -90,16 +91,8 @@ while True:
         break
     
     
-    
-
-printresults(args[0],q)
-
+endprogram(args[0],q)
 
 endtime=datetime.datetime.now()
 print endtime-starttime
-if q.calcenergies:
-    q.dataoutL.close()
-if q.calcSurf:
-    q.surff.close()
-#q.debugf.close()
 
