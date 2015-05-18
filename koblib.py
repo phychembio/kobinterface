@@ -3,6 +3,7 @@ import sys
 import math
 import kobcompute
 import gzip
+import numpy as np
 
 def initialize(q):
     gettrajinfo(q)
@@ -24,6 +25,8 @@ def initialize(q):
     if q.studysurf:
         q.calcSurf=False
         q.surff=gzip.open("surf.pickle","rb")
+        q.surfdiffL=[]
+        
     if q.calcSurf:
         q.surff=gzip.open("surf.pickle","wb", compresslevel=5)
 
@@ -291,3 +294,11 @@ def printresults(suffix,q):
         inf.write("%f\n"%(q.iwNtotal*1./q.ecounter))
         inf.write("%f\n"%(q.bwNtotal*1./q.ecounter))
         inf.close()
+    if q.studysurf:
+        outf=open("surfstats.txt","w")
+        #for bin in q.surfdiffL:
+        #    if len(bin[1])!=0:
+        #        outf.write("%f %f\n"%(bin[0], np.std(bin[1],ddof=1)))
+        for bin in q.surfdiffL:
+            if bin[1][0]>=2:
+                outf.write("%f %f\n"%(bin[0], math.sqrt(bin[1][1]*1./(bin[1][0]-1.0))))    
