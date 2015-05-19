@@ -24,11 +24,10 @@ q.OHID=OHID
 HHID=4
 q.HHID=HHID
 
-prefix="H-interface/short4"
+prefix="final"
 
-q.skipstep=0
+q.skipstep=5000
 q.trajfile=prefix+''+args[0]
-
 q.calcSurf=False
 q.studysurf=True
 q.calcenergies=False
@@ -91,8 +90,12 @@ while True:
         break
     
     
+    
+
 endprogram(args[0],q)
 
 endtime=datetime.datetime.now()
 print endtime-starttime
+
+#q.debugf.close()
 

@@ -24,26 +24,31 @@ q.OHID=OHID
 HHID=4
 q.HHID=HHID
 
-prefix="OH-interface/short8"
+prefix="final"
 
+q.skipstep=0
 q.trajfile=prefix+''+args[0]
 
-q.calcSurf=True
+q.calcSurf=False
+q.studysurf=True
 q.calcenergies=False
 q.surflevel=0.015
 q.surftol=0.0001
+
+
 q.cleanevbfilename=prefix+".cleanevb"
 q.massL=[16,1,16,1]
 q.radius=3.5
-q.CNinterfacez=13.5
-q.prefix="full"
-q.suffix=str(q.CNinterfacez)
+q.CNinterfacez=13.0
 q.sigmatypeL=[[3.16549,0.0,3.16549,1.605999],[0.0,0.0,1.619017,2.670681],[3.165490,1.619017,3.165490,0.0],[1.605999,2.670681,0.0,0.0]]
 q.epstypeL=[[0.155425,0.0,0.155425,7.664461],[0.0,0.0,0.094901,0.011165],[0.155425,0.094901,0.155425,0.0],[7.664461,0.011165,0.0,0.0]]
 q.chargetypeL=[-0.835,0.4175,-1.13,0.13]
+
+q.prefix="full"
+q.suffix=str(q.CNinterfacez)
 q.HorOH=2 #1=H, 2=OH
 
-
+#q.debugf=open("zpos.txt","w")
 
 initialize(q)
 
@@ -89,14 +94,13 @@ while True:
         break
     
     
+    
 
 printresults(args[0],q)
-
+endprogram(args[0],q)
 
 endtime=datetime.datetime.now()
 print endtime-starttime
-if q.calcenergies:
-    q.dataoutL.close()
-if q.calcSurf:
-    q.surff.close()
+
+#q.debugf.close()
 

@@ -442,10 +442,51 @@ def findenergies(q,coordsL,boxlengthL):
     q.dataoutL.write("\n")
     q.ecounter+=1
 
+def studysurf2(q,boxlengthL):
+    binsize=0.5
+    binL=q.surfdiffL
+    CECcoords=q.CEC[:]
+    CECcoords[2]-=q.zcom
+    q.time=pickle.load(q.surff)
+    surfdata=pickle.load(q.surff)
+    info=[float(x) for x in surfdata.split()]
+    surfpts=[]
+
+    for index,i in enumerate(info):        
+        if index%3==0:
+            x,y,z=info[index],info[index+1],info[index+2]
+            surfpts.append([x,y,z])
+
+    npsurfpts=np.array(surfpts)
+    Ndata=len(npsurfpts)
+    for i in xrange(Ndata):
+        coords=[npsurfpts[i][0],npsurfpts[i][1],CECcoords[2]]
+        sqdist=minimage3Dsqdist(CECcoords,coords,boxlengthL)
+        whichbin=int(math.sqrt(sqdist)/binsize)        
+        maxbin=len(binL)-1
+        finalbin=whichbin
+        if whichbin>maxbin:                      
+            while maxbin<whichbin: 
+                if len(binL)==0:
+                    binL.append([binsize/2,[0,0,0]])
+                else:
+                    binL.append([binL[-1][0]+binsize,[0,0,0]])
+                maxbin+=1
+            finalbin=-1
+        #print i,finalbin,len(npsurfpts),len(binL)   
+        bin= binL[finalbin][1]   
+        bin[0]+=1        
+        m_prev = bin[2]
+        x_i=npsurfpts[i][2]-CECcoords[2]
+
+        bin[2] += (x_i - bin[2]) / bin[0]
+        bin[1] += (x_i - bin[2]) * (x_i - m_prev)     
+
 def studysurf(q,boxlengthL):
     binsize=0.5
     binL=q.surfdiffL
-    CECcoords=q.CEC
+    CECcoords=q.CEC[:]
+    CECcoords[2]-=q.zcom
     q.time=pickle.load(q.surff)
     surfdata=pickle.load(q.surff)
     info=[float(x) for x in surfdata.split()]
@@ -462,7 +503,7 @@ def studysurf(q,boxlengthL):
     #surfdistL=np.zeros(Ndata)
     for i in xrange(Ndata):
         coords=npsurfpts[i]
-        sqdist=minimage3Dsqdist(q.CEC,coords,boxlengthL)
+        sqdist=minimage3Dsqdist(CECcoords,coords,boxlengthL)
         whichbin=int(math.sqrt(sqdist)/binsize)        
         maxbin=len(binL)-1
         finalbin=whichbin
@@ -508,7 +549,7 @@ def compute(q):
         if q.calcSurf: findsurf(q,coordsL,boxlengthL)            
 
         if q.studysurf: 
-            studysurf(q,boxlengthL)
+            studysurf2(q,boxlengthL)
 
         if q.calcenergies: findenergies(q,coordsL,boxlengthL)
 
