@@ -295,7 +295,7 @@ def printresults(suffix,q):
         inf.write("%f\n"%(q.bwNtotal*1./q.ecounter))
         inf.close()
     if q.studysurf:
-        outf=open("surfstats.txt","w")
+        outf=open("surflateralstats.txt","w")
         #for bin in q.surfdiffL:
         #    if len(bin[1])!=0:
         #        outf.write("%f %f\n"%(bin[0], np.std(bin[1],ddof=1)))
