@@ -539,8 +539,9 @@ def findCN(q,coordsL,boxlengthL,binL):
     for i in xrange(N):
         CNcount=0
         sortedOindexL=np.argsort(sqOOdistL[i],kind='quicksort')        
-        for j in xrange(1,10):
+        for j in xrange(1,10):            
             if sqOOdistL[i][sortedOindexL[j]]<sqradius:
+                #print sqOOdistL[i][sortedOindexL[j]]
                 CNcount+=1
             else:
                 break

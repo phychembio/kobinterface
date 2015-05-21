@@ -37,9 +37,9 @@ def sqdistmatrix(np.ndarray[DTYPE_t, ndim=1,mode="c"]sqdistL,double[:,::1] coord
 @cython.cdivision(True)
 @cython.nonecheck(False)
 def sqdistOOmatrix(double[:,::1] sqOOdistL,double[:,::1] coordsL,int[:] OIDL, double[:] boxlengthL):
-    cdef int i,j,k,counti,countj
+    cdef int i,j,k
     cdef double sqdistij,diff
-    cdef int N=OIDL.shape[0]-1    
+    cdef int N=OIDL.shape[0]    
     
     counti=0    
     for ii in range(N):                            
@@ -56,11 +56,10 @@ def sqdistOOmatrix(double[:,::1] sqOOdistL,double[:,::1] coordsL,int[:] OIDL, do
                 elif diff / boxlengthL[k] < -0.5:
                     diff+= boxlengthL[k]                                         
                 sqdistij+=diff * diff 
-            sqOOdistL[counti,countj]= sqdistij 
-            sqOOdistL[countj,counti]= sqdistij 
-            #print counti,countj,sqOOdistL[counti,countj]                     
-          countj+=1
-       counti+=1  
+            sqOOdistL[ii,jj]= sqdistij 
+            sqOOdistL[jj,ii]= sqdistij 
+              
+
          
     return sqOOdistL
 
