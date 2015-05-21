@@ -29,7 +29,8 @@ def initialize(q):
         
     if q.calcSurf:
         q.surff=gzip.open("surf.pickle","wb", compresslevel=5)
-
+    if q.calcCN:
+        q.OCN_L=[]
     
 
 def readcleanevb(q,time,cleanevbf):
@@ -301,4 +302,12 @@ def printresults(suffix,q):
         #        outf.write("%f %f\n"%(bin[0], np.std(bin[1],ddof=1)))
         for bin in q.surfdiffL:
             if bin[1][0]>=2:
-                outf.write("%f %f\n"%(bin[0], math.sqrt(bin[1][1]*1./(bin[1][0]-1.0))))    
+                outf.write("%f %f\n"%(bin[0], bin[1][1]*1./(bin[1][0]-1.0)))   
+    if q.calcCN:
+        outf=open("OCNstats.txt","w")
+        #for bin in q.surfdiffL:
+        #    if len(bin[1])!=0:
+        #        outf.write("%f %f\n"%(bin[0], np.std(bin[1],ddof=1)))
+        for bin in q.OCN_L:
+            if bin[1][0]>=2:
+                outf.write("%f %f %f\n"%(bin[0], bin[1][2],bin[1][1]*1./(bin[1][0]-1.0)))  

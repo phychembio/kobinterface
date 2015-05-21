@@ -28,7 +28,9 @@ prefix="OH-interface/short8"
 
 q.trajfile=prefix+''+args[0]
 
-q.calcSurf=True
+q.calcSurf=False
+q.calcCN=True
+q.studysurf=False
 q.calcenergies=False
 q.surflevel=0.015
 q.surftol=0.0001
@@ -92,11 +94,8 @@ while True:
 
 printresults(args[0],q)
 
+endprogram(args[0],q)
 
 endtime=datetime.datetime.now()
 print endtime-starttime
-if q.calcenergies:
-    q.dataoutL.close()
-if q.calcSurf:
-    q.surff.close()
 

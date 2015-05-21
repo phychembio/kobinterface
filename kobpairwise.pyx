@@ -1,5 +1,5 @@
 import cython
-
+import sys
 from libc.math cimport sqrt
 from libc.math cimport exp
 from libc.math cimport pow
@@ -13,7 +13,7 @@ ctypedef np.float64_t DTYPE_t
 @cython.wraparound(False)
 @cython.cdivision(True)
 @cython.nonecheck(False)
-def sqdistmatrix(np.ndarray[DTYPE_t, ndim=1,mode="c"]sqdistL,double[:,::1] coordsL,double[:]boxlengthL):
+def sqdistmatrix(np.ndarray[DTYPE_t, ndim=1,mode="c"]sqdistL,double[:,::1] coordsL,double[:] boxlengthL):
     cdef int i,j,k
     cdef double sqdistij,diff
     cdef int N=coordsL.shape[0]-1
@@ -32,6 +32,37 @@ def sqdistmatrix(np.ndarray[DTYPE_t, ndim=1,mode="c"]sqdistL,double[:,::1] coord
                 sqdistL[j*N+i]= sqdistij 
     return sqdistL
 
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.cdivision(True)
+@cython.nonecheck(False)
+def sqdistOOmatrix(double[:,::1] sqOOdistL,double[:,::1] coordsL,int[:] OIDL, double[:] boxlengthL):
+    cdef int i,j,k,counti,countj
+    cdef double sqdistij,diff
+    cdef int N=OIDL.shape[0]-1    
+    
+    counti=0    
+    for ii in range(N):                            
+       countj=0 
+       i=OIDL[ii]
+       for jj in range(N):                                   
+          j=OIDL[jj]
+          if j>i:                
+            sqdistij = 0                                      
+            for k in range(3):
+                diff = coordsL[i,k] - coordsL[j,k]
+                if diff / boxlengthL[k] > 0.5:
+                    diff-= boxlengthL[k]
+                elif diff / boxlengthL[k] < -0.5:
+                    diff+= boxlengthL[k]                                         
+                sqdistij+=diff * diff 
+            sqOOdistL[counti,countj]= sqdistij 
+            sqOOdistL[countj,counti]= sqdistij 
+            #print counti,countj,sqOOdistL[counti,countj]                     
+          countj+=1
+       counti+=1  
+         
+    return sqOOdistL
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
