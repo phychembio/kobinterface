@@ -368,7 +368,7 @@ def findsurf(q,coordsL,boxlengthL):
     print endtime - starttime
 
 
-def findenergies(q,coordsL,boxlengthL):
+def findenergies(q,coordsL,boxlengthL,sqdistL):
     changeEVBfct = None
     if q.HorOH == 1:
         changeEVBfct = changeEVBstateH
@@ -376,7 +376,7 @@ def findenergies(q,coordsL,boxlengthL):
         changeEVBfct = changeEVBstateOH
 
     
-    if evbtime == None:
+    if q.evbtime == None:
         sys.exit("evbtime is none. Cleanevb is probably at the end or not matched") 
     ####setup intial state####
     starmolID=q.IDtomolL[q.moltoIDL[0][0][0]]
@@ -389,15 +389,14 @@ def findenergies(q,coordsL,boxlengthL):
         changeEVBfct(q,0)
     backupevbstate(q)
                
-            
+    sqdistL=np.zeros(q.noofatom*q.noofatom)               
+    sqdistL=kobpair.sqdistmatrix(sqdistL,coordsL,boxlengthL) 
     chargetypeL = np.array(q.chargetypeL)
     esptypeL = np.array(q.epstypeL)
     sigmatypeL = np.array(q.sigmatypeL)
-            
+           
     
     normalization=1./sum([x*x for x in q.evbciL])   
-    sqdistL=np.zeros(q.noofatom*q.noofatom)               
-    sqdistL=kobpair.sqdistmatrix(sqdistL,coordsL,boxlengthL)
 
 
     q.dataoutL.write("%d "%q.time)
@@ -525,6 +524,48 @@ def studysurf2(q,boxlengthL):
         
 
     #sys.exit(0)
+def findCN(q,coordsL,boxlengthL,binL):
+    nptypeL=np.array(q.typeL,dtype=np.intc)
+    sqradius=q.radius*q.radius
+    binsize=0.5
+    
+    OL=np.sort(np.array(q.Typemap[q.OWID]+q.Typemap[q.OHID],dtype=np.intc))
+    N=len(OL)
+    OIDL=np.array(OL)-2
+    sqOOdistL=np.zeros((N,N),dtype=np.float64)             
+    sqOOdistL=kobpair.sqdistOOmatrix(sqOOdistL,coordsL,OIDL,boxlengthL) 
+    
+    CECcoords=q.CEC[:]    
+    for i in xrange(N):
+        CNcount=0
+        sortedOindexL=np.argsort(sqOOdistL[i],kind='quicksort')        
+        for j in xrange(1,10):
+            if sqOOdistL[i][sortedOindexL[j]]<sqradius:
+                CNcount+=1
+            else:
+                break
+        CECOdist=math.sqrt(minimage3Dsqdist(CECcoords,coordsL[OIDL[i]],boxlengthL))
+        if CECOdist<15.0:
+            whichbin=int(CECOdist/binsize)        
+            maxbin=len(binL)-1
+            finalbin=whichbin
+            if whichbin>maxbin:                      
+                while maxbin<whichbin: 
+                    if len(binL)==0:
+                        binL.append([binsize/2,[0,0,0]])
+                    else:
+                        binL.append([binL[-1][0]+binsize,[0,0,0]])
+                    maxbin+=1
+                finalbin=-1
+            #print i,finalbin,len(npsurfpts),len(binL)   
+            bin= binL[finalbin][1]   
+            bin[0]+=1        
+            m_prev = bin[2]
+            x_i=CNcount
+            bin[2] += (x_i - bin[2]) *1./ bin[0]
+            bin[1] += (x_i - bin[2]) * (x_i - m_prev) 
+        
+
                 
 def compute(q):                 
         print "time= ",q.time    
@@ -532,13 +573,17 @@ def compute(q):
         q.zcom = findzcenter2(q)
         coordsL = np.array(q.coordsL)
         boxlengthL = np.array(q.boxlengthL)
-        evbtime = koblib.readcleanevb(q,q.time,q.cleanevbf)          
+        q.evbtime = koblib.readcleanevb(q,q.time,q.cleanevbf)          
         if q.calcSurf: findsurf(q,coordsL,boxlengthL)            
 
         if q.studysurf: 
             studysurf2(q,boxlengthL)
+        
+        sqdistL=None
 
-        if q.calcenergies: findenergies(q,coordsL,boxlengthL)
+            
+        if q.calcenergies: findenergies(q,coordsL,boxlengthL,sqdistL)
+        if q.calcCN: findCN(q,coordsL,boxlengthL,q.OCN_L)
 
 
         endtime = datetime.datetime.now()        
