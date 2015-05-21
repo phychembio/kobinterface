@@ -579,9 +579,7 @@ def compute(q):
         if q.studysurf: 
             studysurf2(q,boxlengthL)
         
-        sqdistL=None
-
-            
+        sqdistL=None            
         if q.calcenergies: findenergies(q,coordsL,boxlengthL,sqdistL)
         if q.calcCN: findCN(q,coordsL,boxlengthL,q.OCN_L)
 
