@@ -304,7 +304,7 @@ def printresults(suffix,q):
             if bin[1][0]>=2:
                 outf.write("%f %f\n"%(bin[0], bin[1][1]*1./(bin[1][0]-1.0)))   
     if q.calcCN:
-        outf=open("OCNstats.txt","w")
+        outf=open("OCNstats"+str(q.radius)+".txt","w")
         #for bin in q.surfdiffL:
         #    if len(bin[1])!=0:
         #        outf.write("%f %f\n"%(bin[0], np.std(bin[1],ddof=1)))

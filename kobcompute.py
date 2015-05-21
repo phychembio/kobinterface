@@ -376,7 +376,7 @@ def findenergies(q,coordsL,boxlengthL,sqdistL):
         changeEVBfct = changeEVBstateOH
 
     
-    if evbtime == None:
+    if q.evbtime == None:
         sys.exit("evbtime is none. Cleanevb is probably at the end or not matched") 
     ####setup intial state####
     starmolID=q.IDtomolL[q.moltoIDL[0][0][0]]
@@ -529,7 +529,7 @@ def findCN(q,coordsL,boxlengthL,binL):
     sqradius=q.radius*q.radius
     binsize=0.5
     
-    OL=np.sort(np.array(q.Typemap[q.OWID]+q.Typemap[q.OHID]))
+    OL=np.sort(np.array(q.Typemap[q.OWID]+q.Typemap[q.OHID],dtype=np.intc))
     N=len(OL)
     OIDL=np.array(OL)-2
     sqOOdistL=np.zeros((N,N),dtype=np.float64)             
@@ -573,16 +573,14 @@ def compute(q):
         q.zcom = findzcenter2(q)
         coordsL = np.array(q.coordsL)
         boxlengthL = np.array(q.boxlengthL)
-        evbtime = koblib.readcleanevb(q,q.time,q.cleanevbf)          
+        q.evbtime = koblib.readcleanevb(q,q.time,q.cleanevbf)          
         if q.calcSurf: findsurf(q,coordsL,boxlengthL)            
 
         if q.studysurf: 
             studysurf2(q,boxlengthL)
         
-        sqdistL=None
-
-            
-        if q.calcenergies: findenergies(q,coordsL,boxlengthL)
+        sqdistL=None            
+        if q.calcenergies: findenergies(q,coordsL,boxlengthL,sqdistL)
         if q.calcCN: findCN(q,coordsL,boxlengthL,q.OCN_L)
 
 
