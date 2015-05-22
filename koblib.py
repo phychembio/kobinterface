@@ -31,6 +31,13 @@ def initialize(q):
         q.surff=gzip.open("surf.pickle","wb", compresslevel=5)
     if q.calcCN:
         q.OCN_L=[]
+    if q.calcAngle:
+        q.anglebinsize=1.0
+        q.angleL=[]
+        Nbin=int(180./q.anglebinsize)
+        for i in range(Nbin):
+            q.angleL.append([q.anglebinsize/2+i*q.anglebinsize,0])
+            
     
 
 def readcleanevb(q,time,cleanevbf):
@@ -303,11 +310,18 @@ def printresults(suffix,q):
         for bin in q.surfdiffL:
             if bin[1][0]>=2:
                 outf.write("%f %f\n"%(bin[0], bin[1][1]*1./(bin[1][0]-1.0)))   
+        outf.close()
     if q.calcCN:
-        outf=open("OCNstats"+str(q.radius)+".txt","w")
+        outf=open("OCNstats3.2.txt","w")
         #for bin in q.surfdiffL:
         #    if len(bin[1])!=0:
         #        outf.write("%f %f\n"%(bin[0], np.std(bin[1],ddof=1)))
         for bin in q.OCN_L:
             if bin[1][0]>=2:
                 outf.write("%f %f %f\n"%(bin[0], bin[1][2],bin[1][1]*1./(bin[1][0]-1.0)))  
+        outf.close()
+    if q.calcAngle:
+        outf=open("anglestats.txt","w")
+        for bin in q.angleL:
+             outf.write("%f %d\n"%(bin[0], bin[1]))
+        outf.close()
