@@ -545,11 +545,13 @@ def findangle(q,coordsL,boxlengthL,binL):
     if q.HorOH==1: #H
         NHatoms=3
         Ocharge=-0.32
-        Hcharge=0.44        
+        Hcharge=0.44       
+        centerfactor=1./4 
     else:
         NHatoms=1
         Ocharge=-1.12
         Hcharge=0.12
+        centerfactor=1./2
 
     OID=q.Typemap[q.OHID][0]-2
     Ocoords=list(coordsL[OID])
@@ -565,7 +567,7 @@ def findangle(q,coordsL,boxlengthL,binL):
     for i in range(NHatoms):
        for j in range(3):
            center[j]+=movedHcoords[i][j]
-    center=vec.scalermultiply(1./4,center)
+    center=vec.scalermultiply(centerfactor,center)
     dipolevec=vec.scalermultiply(Ocharge,vec.subtractvec(Ocoords,center))
     for i in range(NHatoms):
         diff=vec.scalermultiply(Hcharge,vec.subtractvec(movedHcoords[i],center))
@@ -642,7 +644,7 @@ def compute(q):
         q.zcom = findzcenter2(q)
         coordsL = np.array(q.coordsL)
         boxlengthL = np.array(q.boxlengthL)
-        #q.evbtime = koblib.readcleanevb(q,q.time,q.cleanevbf)          
+        q.evbtime = koblib.readcleanevb(q,q.time,q.cleanevbf)          
         if q.calcSurf: findsurf(q,coordsL,boxlengthL)            
 
         if q.studysurf: 
