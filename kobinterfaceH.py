@@ -31,7 +31,8 @@ q.trajfile=prefix+''+args[0]
 
 q.calcSurf=False
 q.studysurf=False
-q.calcCN=True
+q.calcCN=False
+q.calcAngle=True
 q.calcenergies=False
 q.surflevel=0.015
 q.surftol=0.0001

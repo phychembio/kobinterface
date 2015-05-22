@@ -522,11 +522,61 @@ def studysurf2(q,boxlengthL):
         bin[2] += (x_i - bin[2]) / bin[0]
         bin[1] += (x_i - bin[2]) * (x_i - m_prev)        
         
+def moveClosetoRef(coords,refcoords,boxlengthL):    
+    r2=coords
+    r1=refcoords
+    for i in range(3):        
+        boxlength = boxlengthL[i]
+        diff = r2[i] - r1[i]
+        while abs(diff / boxlength)>0.5:            
+            if diff / boxlength > 0.5:
+                increment = 1
+            elif diff / boxlength < -0.5:
+                increment = -1      
+            r2[i] = r2[i] - increment * boxlength
+            diff = r2[i] - r1[i]
+    return r2
+
 
     #sys.exit(0)
+def findangle(q,coordsL,boxlengthL,binL):
+    anglebinsize=1
+    if q.HorOH==1: #H
+        NHatoms=3
+    else:
+        NHatoms=1
+    OID=q.Typemap[q.OHID][0]-2
+    Ocoords=coordsL[OID]
+    #Ocoords=moveClosetoOrigin(Ocoords,boxlengthL)
+    Hcoords=[[],[],[]]
+    dipolevec=vec.scalermultiply(-1.,Ocoords)
+    for i in range(NHatoms):
+        HID=q.Typemap[q.HHID][i]-2
+        Hcoords[i]=coordsL[HID]
+        Hcoords[i]=moveClosetoRef(Hcoords[i],Ocoords,boxlengthL)
+        dipolevec=vec.addvec(dipolevec,Hcoords[i])
+    angle=vec.anglev1v2(dipolevec,[0,0,1])*180/3.141592654        
+    whichbin=int(angle/anglebinsize)        
+    maxbin=len(binL)-1
+    finalbin=whichbin
+    if whichbin>maxbin:                      
+        while maxbin<whichbin: 
+            if len(binL)==0:
+                binL.append([anglebinsize/2,0])
+            else:
+                binL.append([binL[-1][0]+anglebinsize,0])
+            maxbin+=1
+        finalbin=-1
+    #print i,finalbin,len(npsurfpts),len(binL)   
+    binL[finalbin][1]+=1
+        
+        
+        
+
+
 def findCN(q,coordsL,boxlengthL,binL):
     nptypeL=np.array(q.typeL,dtype=np.intc)
-    sqradius=q.radius*q.radius
+    sqradius=3.2*3.2 #water first shell
     binsize=0.5
     
     OL=np.sort(np.array(q.Typemap[q.OWID]+q.Typemap[q.OHID],dtype=np.intc))
@@ -583,7 +633,7 @@ def compute(q):
         sqdistL=None            
         if q.calcenergies: findenergies(q,coordsL,boxlengthL,sqdistL)
         if q.calcCN: findCN(q,coordsL,boxlengthL,q.OCN_L)
-
+        if q.calcAngle: findangle(q,coordsL,boxlengthL,q.angleL)
 
         endtime = datetime.datetime.now()        
         print endtime - starttime
