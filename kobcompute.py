@@ -541,22 +541,40 @@ def moveClosetoRef(coords,refcoords,boxlengthL):
     #sys.exit(0)
 def findangle(q,coordsL,boxlengthL,binL):
     anglebinsize=1
+    Ocharge=Hcharge=None
     if q.HorOH==1: #H
         NHatoms=3
+        Ocharge=-0.32
+        Hcharge=0.44        
     else:
         NHatoms=1
+        Ocharge=-1.12
+        Hcharge=0.12
+
     OID=q.Typemap[q.OHID][0]-2
-    Ocoords=coordsL[OID]
-    #Ocoords=moveClosetoOrigin(Ocoords,boxlengthL)
+    Ocoords=list(coordsL[OID])
+    
     Hcoords=[[],[],[]]
-    dipolevec=vec.scalermultiply(-1.,Ocoords)
+    movedHcoords=[[],[],[]]    
+    
+    center=Ocoords[:]
     for i in range(NHatoms):
         HID=q.Typemap[q.HHID][i]-2
         Hcoords[i]=coordsL[HID]
-        Hcoords[i]=moveClosetoRef(Hcoords[i],Ocoords,boxlengthL)
-        dipolevec=vec.addvec(dipolevec,Hcoords[i])
+        movedHcoords[i]=moveClosetoRef(Hcoords[i],Ocoords,boxlengthL)                
+    for i in range(NHatoms):
+       for j in range(3):
+           center[j]+=movedHcoords[i][j]
+    center=vec.scalermultiply(1./4,center)
+    dipolevec=vec.scalermultiply(Ocharge,vec.subtractvec(Ocoords,center))
+    for i in range(NHatoms):
+        diff=vec.scalermultiply(Hcharge,vec.subtractvec(movedHcoords[i],center))
+        dipolevec=vec.addvec(dipolevec,diff)
+
+
     angle=vec.anglev1v2(dipolevec,[0,0,1])*180/3.141592654        
     whichbin=int(angle/anglebinsize)        
+    
     maxbin=len(binL)-1
     finalbin=whichbin
     if whichbin>maxbin:                      
@@ -624,7 +642,7 @@ def compute(q):
         q.zcom = findzcenter2(q)
         coordsL = np.array(q.coordsL)
         boxlengthL = np.array(q.boxlengthL)
-        q.evbtime = koblib.readcleanevb(q,q.time,q.cleanevbf)          
+        #q.evbtime = koblib.readcleanevb(q,q.time,q.cleanevbf)          
         if q.calcSurf: findsurf(q,coordsL,boxlengthL)            
 
         if q.studysurf: 
