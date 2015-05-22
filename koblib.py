@@ -31,7 +31,7 @@ def initialize(q):
         q.surff=gzip.open("surf.pickle","wb", compresslevel=5)
     if q.calcCN:
         q.OCN_L=[]
-    if q.calcAngle:
+    if q.calcAngle:        
         q.anglebinsize=1.0
         q.angleL=[]
         Nbin=int(180./q.anglebinsize)
