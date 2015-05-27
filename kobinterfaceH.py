@@ -45,6 +45,7 @@ q.CNinterfacez=13.5
 q.prefix="full"
 q.suffix=str(q.CNinterfacez)
 q.chargetypeL=[-0.82,0.41,-0.32,0.44]
+q.ItypeL=[q.OWID]
 q.HorOH=1 #1=H, 2=OH
 
 #q.debugf=open("zpos.txt","w")

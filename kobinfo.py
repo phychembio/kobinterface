@@ -10,4 +10,4 @@ class KobInfo:
     skipstep=0
     trajext='.lammpstrj'    
     xl=2    
-    statesL, Typemap = ([] for i in range(2))
+    statesL, Typemap,bigItypeL = ([] for i in range(3))

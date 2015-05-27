@@ -37,6 +37,9 @@ def initialize(q):
         Nbin=int(180./q.anglebinsize)
         for i in range(Nbin):
             q.angleL.append([q.anglebinsize/2+i*q.anglebinsize,0])
+    q.bigItypeL.append(0)
+    for type in q.ItypeL:
+        q.bigItypeL.append([type])
             
     
 
@@ -325,3 +328,11 @@ def printresults(suffix,q):
         for bin in q.angleL:
              outf.write("%f %d\n"%(bin[0], bin[1]))
         outf.close()
+    count=1
+    for type in q.ItypeL:
+        L=q.bigItypeL[count]
+        outf=open('Itype='+str(type)+'.txt','w')
+        for bin in L[1:]:
+            outf.write("%f   %f \n" %(bin[0] ,bin[1]*1./q.bigItypeL[0]))
+        outf.close()
+        count+=1
