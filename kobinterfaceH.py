@@ -32,7 +32,7 @@ q.trajfile=prefix+''+args[0]
 q.calcSurf=False
 q.studysurf=False
 q.calcCN=False
-q.calcAngle=True
+q.calcAngle=False
 q.calcenergies=False
 q.surflevel=0.015
 q.surftol=0.0001
@@ -45,7 +45,7 @@ q.CNinterfacez=13.5
 q.prefix="full"
 q.suffix=str(q.CNinterfacez)
 q.chargetypeL=[-0.82,0.41,-0.32,0.44]
-q.ItypeL=[q.OWID]
+q.calcGDS=True
 q.HorOH=1 #1=H, 2=OH
 
 #q.debugf=open("zpos.txt","w")

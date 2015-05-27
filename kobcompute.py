@@ -637,21 +637,23 @@ def findCN(q,coordsL,boxlengthL,binL):
             bin[1] += (x_i - bin[2]) * (x_i - m_prev) 
         
 
-def densitycompute(q,binL,type):
+def densitycompute(q,binL):
      noofatom=q.statesL[-1][1]
      variance=0
      zcenter=q.zcom
 
      
      ionbinsize=0.5
-
-     for index in q.Typemap[type]:
-        zpos=q.statesL[-1][index][q.xl+2]+q.statesL[-1][index][q.xl+5]*q.zboxlength
+     q.GDSbinL[0]+=1
+     for i in xrange(noofatom):
+        zpos=q.coordsL[i+1][2]
+        type=q.typeL[i+1]
+        mass=q.massL[type-1]
         if zpos-zcenter>0:
             whichbin=int((zpos-zcenter)/ionbinsize)+1
         else:
-            whichbin=int((zcenter-zpos)/ionbinsize)+1
-            koblib.histo(binL,ionbinsize,whichbin,1)
+            whichbin=int((zcenter-zpos)/ionbinsize)+1        
+        koblib.histo(binL,ionbinsize,whichbin,mass)
                 
 def compute(q):                 
         print "time= ",q.time    
@@ -670,9 +672,8 @@ def compute(q):
         if q.calcCN: findCN(q,coordsL,boxlengthL,q.OCN_L)
         if q.calcAngle: findangle(q,coordsL,boxlengthL,q.angleL)
         
-        q.bigItypeL[0]+=1
-        for binL in q.bigItypeL[1:]:
-            densitycompute(q,binL,binL[0])
+        if q.calcGDS:
+            densitycompute(q,q.GDSbinL)
 
 
         endtime = datetime.datetime.now()        
