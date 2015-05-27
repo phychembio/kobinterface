@@ -96,7 +96,7 @@ def gettrajinfo(q):
             break
     maxtypeid=0
     for line in range(q.noofatom):
-        line=trajf.next()
+        line=trajf.next()        
         typeid=int(line.split()[typelabelindex])
         if typeid>maxtypeid:
             maxtypeid=typeid    
