@@ -328,9 +328,9 @@ def printresults(suffix,q):
              outf.write("%f %d\n"%(bin[0], bin[1]))
         outf.close()
     
-    
-    outf=open('GDSdensity.txt','w')
-    for bin in q.GDSbinL[1:]:
-       outf.write("%f  %f \n" %(bin[0] ,bin[1]*1./q.GDSbinL[0]))
-    outf.close()
+    if q.calcGDS:
+        outf=open('GDSdensity.txt','w')
+        for bin in q.GDSbinL[1:]:
+           outf.write("%f  %f \n" %(bin[0] ,bin[1]*1./q.GDSbinL[0]))
+        outf.close()
     

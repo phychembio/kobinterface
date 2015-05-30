@@ -67,6 +67,66 @@ def sqdistOOmatrix(double[:,::1] sqOOdistL,double[:,::1] coordsL,int[:] OIDL, do
 @cython.wraparound(False)
 @cython.cdivision(True)
 @cython.nonecheck(False)
+def WWenergy(int[:] watertypeL, int[:] waterindexL,int[:] typeL,int[:] idtomolL,double[:] sqdistL,double[:] chargetypeL,double[:,::1] epstypeL,double[:,::1]sigmatypeL,double[:]boxlengthL,int N):
+    cdef double eng_wwc = 0
+    cdef double eng_wwi = 0
+    cdef double eng_wwb = 0
+    cdef int typei, molIDi,typej,molIDj,Oiindex,Ojindex,ii,i,indexi,j,jj,indexj,watertype1,watertype2
+    cdef double chargei,chargej,eps,sigma,distij,OOsqdist, sqdistij,e1,e2,xsq,x6p
+    #cdef int wrange=len(waterindexL)
+    indexi=0
+    for ii in range(waterindexL.shape[0]):
+        i=waterindexL[ii]
+        Oiindex=waterindexL[indexi/3*3]
+        typei = typeL[i + 1]
+        molIDi = idtomolL[i + 1]        
+        chargei = chargetypeL[typei - 1]                
+        watertype1 = watertypeL[molIDi]
+        indexj=0
+        for jj in range(waterindexL.shape[0]):      
+               j=waterindexL[jj]
+               Ojindex=waterindexL[indexj/3*3]           
+               typej = typeL[j + 1]
+               molIDj = idtomolL[j + 1]
+               watertype2 = watertypeL[molIDj]
+               if j > i:                   
+                   chargej = chargetypeL[typej - 1]                       
+                   if molIDi != molIDj:                       
+                        sqdistij = sqdistL[N*i+j]                                
+                        OOsqdist=sqdistL[Oiindex*N+Ojindex]
+                        e1=0
+                        if  OOsqdist<9*9:          
+                            sigma=sigmatypeL[typei-1,typej-1]
+                            eps=epstypeL[typei-1,typej-1]
+                            xsq = sigma * sigma / sqdistij
+                            x6p = xsq * xsq * xsq
+                            e1 = 4 * eps * (x6p * x6p - x6p)
+                        e2=0
+                        if  OOsqdist<15*15:   
+                           distij = sqrt(sqdistij)         
+                           e2 = 332.0636 * chargei * chargej / distij
+
+                        if watertype1 == 1:                            
+                            eng_wwc+=e1 + e2                            
+                        elif watertype1 == 2:                            
+                            eng_wwi+=e1 + e2                            
+                        elif watertype1 == 3:                            
+                            eng_wwb+=e1 + e2
+                            
+                        if watertype2 == 1:                            
+                            eng_wwc+=e1 + e2                            
+                        elif watertype2 == 2:                            
+                            eng_wwi+=e1 + e2                            
+                        elif watertype2 == 3:                            
+                            eng_wwb+=e1 + e2                                    
+               indexj+=1
+        indexi+=1
+    return eng_wwc,eng_wwi,eng_wwb
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.cdivision(True)
+@cython.nonecheck(False)
 def IWenergy(int[:] watertypeL,int[:] starindexL, int[:] waterindexL,int[:] typeL,int[:] idtomolL,double[:] sqdistL,double[:] chargetypeL,double[:,::1] epstypeL,double[:,::1]sigmatypeL,double[:]boxlengthL,int N):     
     cdef double eng_iwc = 0
     cdef double eng_iwi = 0
@@ -119,7 +179,7 @@ def IWenergy(int[:] watertypeL,int[:] starindexL, int[:] waterindexL,int[:] type
 @cython.wraparound(False)
 @cython.cdivision(True)
 @cython.nonecheck(False)
-def WWenergy(int[:] watertypeL, int[:] waterindexL,int[:] typeL,int[:] idtomolL,double[:] sqdistL,double[:] chargetypeL,double[:,::1] epstypeL,double[:,::1]sigmatypeL,double[:]boxlengthL,int N):
+def fullWWenergy(int[:] watertypeL, int[:] waterindexL,int[:] typeL,int[:] idtomolL,double[:] sqdistL,double[:] chargetypeL,double[:,::1] epstypeL,double[:,::1]sigmatypeL,double[:]boxlengthL,int N):
     cdef double eng_wwc = 0
     cdef double eng_wwi = 0
     cdef double eng_wwb = 0
@@ -222,65 +282,6 @@ def fullIWenergy(int[:] watertypeL,int[:] starindexL, int[:] waterindexL,int[:] 
 
     return eng_iwc,eng_iwi,eng_iwb
 
-@cython.boundscheck(False)
-@cython.wraparound(False)
-@cython.cdivision(True)
-@cython.nonecheck(False)
-def fullWWenergy(int[:] watertypeL, int[:] waterindexL,int[:] typeL,int[:] idtomolL,double[:] sqdistL,double[:] chargetypeL,double[:,::1] epstypeL,double[:,::1]sigmatypeL,double[:]boxlengthL,int N):
-    cdef double eng_wwc = 0
-    cdef double eng_wwi = 0
-    cdef double eng_wwb = 0
-    cdef int typei, molIDi,typej,molIDj,Oiindex,Ojindex,ii,i,indexi,j,jj,indexj,watertype1,watertype2
-    cdef double chargei,chargej,eps,sigma,distij,OOsqdist, sqdistij,e1,e2,xsq,x6p
-    #cdef int wrange=len(waterindexL)
-    indexi=0
-    for ii in range(waterindexL.shape[0]):
-        i=waterindexL[ii]
-        Oiindex=waterindexL[indexi/3*3]
-        typei = typeL[i + 1]
-        molIDi = idtomolL[i + 1]        
-        chargei = chargetypeL[typei - 1]                
-        watertype1 = watertypeL[molIDi]
-        indexj=0
-        for jj in range(waterindexL.shape[0]):      
-               j=waterindexL[jj]
-               Ojindex=waterindexL[indexj/3*3]           
-               typej = typeL[j + 1]
-               molIDj = idtomolL[j + 1]
-               watertype2 = watertypeL[molIDj]
-               if j > i:                   
-                   chargej = chargetypeL[typej - 1]                       
-                   if molIDi != molIDj:                       
-                        sqdistij = sqdistL[N*i+j]                                
-                        OOsqdist=sqdistL[Oiindex*N+Ojindex]
-                        e1=0
-                        if  OOsqdist<9*9:          
-                            sigma=sigmatypeL[typei-1,typej-1]
-                            eps=epstypeL[typei-1,typej-1]
-                            xsq = sigma * sigma / sqdistij
-                            x6p = xsq * xsq * xsq
-                            e1 = 4 * eps * (x6p * x6p - x6p)
-                        e2=0
-                        if  OOsqdist<15*15:   
-                           distij = sqrt(sqdistij)         
-                           e2 = 332.0636 * chargei * chargej / distij
-
-                        if watertype1 == 1:                            
-                            eng_wwc+=e1 + e2                            
-                        elif watertype1 == 2:                            
-                            eng_wwi+=e1 + e2                            
-                        elif watertype1 == 3:                            
-                            eng_wwb+=e1 + e2
-                            
-                        if watertype2 == 1:                            
-                            eng_wwc+=e1 + e2                            
-                        elif watertype2 == 2:                            
-                            eng_wwi+=e1 + e2                            
-                        elif watertype2 == 3:                            
-                            eng_wwb+=e1 + e2                                    
-               indexj+=1
-        indexi+=1
-    return eng_wwc,eng_wwi,eng_wwb
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
